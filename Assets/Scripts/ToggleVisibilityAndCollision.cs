@@ -14,6 +14,11 @@ public class ToggleVisibilityAndCollision : MonoBehaviour
     private MeshRenderer objectRenderer;
     private Collider objectCollider;
 
+    [SerializeField] private GameObject objectColliderPrefab;
+
+    
+    
+
     void Start()
     {
         // Get the Renderer component to control visibility
@@ -32,6 +37,7 @@ public class ToggleVisibilityAndCollision : MonoBehaviour
         // Set the initial state based on your choice in the Inspector
         objectRenderer.enabled = startVisible;
         objectCollider.enabled = startVisible;
+        objectColliderPrefab.SetActive(startVisible);
 
         // Start the repeating timer logic
         StartCoroutine(ToggleCycle());
@@ -48,6 +54,7 @@ public class ToggleVisibilityAndCollision : MonoBehaviour
             // Toggle the state (if true, becomes false. If false, becomes true)
             objectRenderer.enabled = !objectRenderer.enabled;
             objectCollider.enabled = !objectCollider.enabled;
+            objectColliderPrefab.SetActive(!objectColliderPrefab.activeSelf);
         }
     }
 }

@@ -1,18 +1,14 @@
+
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Detecta objetos interactivos frente a la cámara mediante un Raycast y,
-/// al presionar la tecla de interacción (E), ejecuta su respuesta (ver
-/// IInteractable). Usa el nuevo Input System, igual que PlayerController.
-/// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
     private const float PromptDisplaySeconds = 2f;
 
-    [Tooltip("Distancia máxima, en metros, a la que se pueden detectar objetos interactivos. Se mide desde la cámara, así que debe ser mayor que la distancia de órbita de ThirdPersonCamera más el alcance deseado.")]
+    [Header("Configuración de interacción")]
     [SerializeField] private float interactionDistance = 10f;
-    [Tooltip("Cámara desde la que se lanza el Raycast de interacción. Si se deja vacío, usa Camera.main.")]
     [SerializeField] private Transform interactionCamera;
     [SerializeField] private LayerMask interactionLayerMask = ~0;
 
@@ -22,9 +18,7 @@ public class PlayerInteraction : MonoBehaviour
     private void Awake()
     {
         if (interactionCamera == null && Camera.main != null)
-        {
             interactionCamera = Camera.main.transform;
-        }
     }
 
     private void Update()
@@ -32,55 +26,92 @@ public class PlayerInteraction : MonoBehaviour
         DetectInteractable();
         ShowPromptOnNewTarget();
         ReadInteractionInput();
+
         previousTarget = currentTarget;
     }
 
-    /// <summary>Lanza un Raycast desde la cámara para saber si hay un objeto interactivo a la vista.</summary>
     private void DetectInteractable()
     {
         currentTarget = null;
-        if (interactionCamera == null)
-        {
-            return;
-        }
 
-        bool hitSomething = Physics.Raycast(
+        if (interactionCamera == null)
+            return;
+
+        RaycastHit[] hits = Physics.RaycastAll(
             interactionCamera.position,
             interactionCamera.forward,
-            out RaycastHit hit,
             interactionDistance,
             interactionLayerMask,
-            QueryTriggerInteraction.Ignore);
+            QueryTriggerInteraction.Collide
+        );
 
-        if (hitSomething)
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
         {
-            currentTarget = hit.collider.GetComponentInParent<IInteractable>();
+            // Ignora los colliders del propio jugador.
+            if (hit.collider.transform == transform ||
+                hit.collider.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            IInteractable interactable =
+                hit.collider.GetComponentInParent<IInteractable>();
+
+            if (interactable == null)
+                continue;
+
+            currentTarget = interactable;
+            break;
         }
     }
 
-    /// <summary>Muestra el mensaje de "Presiona E para..." apenas un objeto interactivo entra a la mira.</summary>
     private void ShowPromptOnNewTarget()
     {
-        if (currentTarget == null || currentTarget == previousTarget || UIManager.Instance == null)
+        if (currentTarget == null ||
+            currentTarget == previousTarget ||
+            UIManager.Instance == null)
         {
             return;
         }
 
-        UIManager.Instance.ShowTooltip(currentTarget.InteractionPrompt, PromptDisplaySeconds);
+        UIManager.Instance.ShowTooltip(
+            currentTarget.InteractionPrompt,
+            PromptDisplaySeconds
+        );
     }
 
-    /// <summary>Ejecuta la interacción cuando se presiona la tecla asignada y hay un objetivo válido a la vista.</summary>
     private void ReadInteractionInput()
     {
         Keyboard keyboard = Keyboard.current;
-        if (keyboard == null || currentTarget == null)
+
+        if (keyboard == null ||
+            !keyboard.eKey.wasPressedThisFrame ||
+            currentTarget == null)
         {
             return;
         }
 
-        if (keyboard.eKey.wasPressedThisFrame)
+        Debug.Log(
+            "Interactuando con: " + currentTarget.GetType().Name
+        );
+
+        PlayerAnimations playerAnimations =
+            GetComponentInChildren<PlayerAnimations>();
+
+        if (playerAnimations == null)
+            playerAnimations = GetComponentInParent<PlayerAnimations>();
+
+        // La animación de saludo ahora se ejecuta desde DialogueNPC.
+        // Evitamos reproducirla dos veces.
+
+        if (currentTarget is InteractableObject)
         {
-            currentTarget.Interact(gameObject);
+            if (playerAnimations != null)
+                playerAnimations.PlayPickup();
         }
+
+        currentTarget.Interact(gameObject);
     }
 }

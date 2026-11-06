@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
 {
     private const float PanelFadeSeconds = 0.25f;
     private const string VoidDeathMessage = "Has caído al vacío...\nReiniciando nivel";
-    private const string LevelCompleteMessage = "¡Nivel completado!";
+    private const string LevelCompleteMessage = "¡Tutorial completado!\r\nViajando al Nivel 1....";
 
     /// <summary>Instancia activa del UIManager en la escena actual.</summary>
     public static UIManager Instance { get; private set; }

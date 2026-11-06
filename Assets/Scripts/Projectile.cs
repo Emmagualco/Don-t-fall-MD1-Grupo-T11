@@ -1,16 +1,13 @@
+
 using UnityEngine;
 
-/// <summary>
-/// Proyectil simple instanciado por ProjectileLauncher: viaja en línea recta
-/// gracias a su Rigidbody y se autodestruye tras un tiempo de vida o al
-/// colisionar con otro objeto. Demuestra Instantiate/Destroy en tiempo de
-/// ejecución (Clase 7).
-/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class Projectile : MonoBehaviour
 {
-    [Tooltip("Segundos que el proyectil vive antes de autodestruirse si no impacta nada.")]
+    [Header("Projectile Settings")]
     [SerializeField] private float lifetimeSeconds = 3f;
+
+    private bool hasImpacted;
 
     private void Start()
     {
@@ -19,6 +16,30 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        HandleImpact(collision.gameObject);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        HandleImpact(other.gameObject);
+    }
+
+    private void HandleImpact(GameObject hitObject)
+    {
+        if (hasImpacted)
+            return;
+
+        hasImpacted = true;
+
+        IProjectileHittable target =
+            hitObject.GetComponentInParent<IProjectileHittable>();
+
+        if (target != null)
+        {
+            target.OnProjectileHit(gameObject);
+        }
+
         Destroy(gameObject);
     }
 }
+

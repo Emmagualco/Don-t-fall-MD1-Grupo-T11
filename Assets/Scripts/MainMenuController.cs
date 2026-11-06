@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,10 +9,20 @@ using UnityEngine.SceneManagement;
 public class MainMenuController : MonoBehaviour
 {
     private const string FirstLevelSceneName = "Tutorial";
+   
+    
 
     /// <summary>Llamado por el botón "Jugar" para iniciar el primer nivel.</summary>
     public void PlayButtonClicked()
     {
         SceneManager.LoadScene(FirstLevelSceneName);
     }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+        Debug.Log("Saliendo del juego...");
+    }
+
+    
 }

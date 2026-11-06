@@ -1,23 +1,19 @@
+
 using UnityEngine;
 
-/// <summary>
-/// Ejemplo simple de objeto interactivo: al recibir Interact() desde
-/// PlayerInteraction, cambia de color y muestra un mensaje en pantalla a
-/// través del UIManager. Demuestra el sistema de Raycast e interacción
-/// básica con tecla pedido en la Clase 7.
-/// </summary>
 public class InteractableObject : MonoBehaviour, IInteractable
 {
-    [Tooltip("Mensaje mostrado mientras el jugador mira este objeto (ej. \"Presiona E para...\").")]
+    [Header("Interacción")]
     [SerializeField] private string interactionPrompt = "Presiona E para interactuar";
-    [Tooltip("Mensaje mostrado en pantalla al interactuar con este objeto.")]
     [SerializeField] private string interactionMessage = "¡Interactuaste con el objeto!";
-    [Tooltip("Segundos que el mensaje permanece visible en pantalla.")]
     [SerializeField] private float messageDisplaySeconds = 2f;
-    [Tooltip("Color al que cambia el objeto para dar una respuesta visual observable.")]
+
+    [Header("Apariencia")]
     [SerializeField] private Color activatedColor = Color.yellow;
-    [Tooltip("Renderer cuyo color cambia al interactuar. Si se deja vacío, se busca uno en este mismo GameObject.")]
     [SerializeField] private Renderer targetRenderer;
+
+    [Header("Arma")]
+    [SerializeField] private bool grantsWeapon = false;
 
     public string InteractionPrompt => interactionPrompt;
 
@@ -29,17 +25,55 @@ public class InteractableObject : MonoBehaviour, IInteractable
         }
     }
 
-    /// <summary>Respuesta observable del objeto: cambia de color y muestra un mensaje de interacción.</summary>
-    public void Interact(GameObject interactor)
+public void Interact(GameObject interactor)
+{
+    Debug.Log("Interact() ejecutado en: " + gameObject.name);
+
+    if (grantsWeapon)
     {
-        if (targetRenderer != null)
+        ProjectileLauncher launcher = interactor != null
+            ? interactor.GetComponentInChildren<ProjectileLauncher>()
+            : null;
+
+        if (launcher == null)
         {
-            targetRenderer.material.color = activatedColor;
+            Debug.LogError(
+                "No se encontró ProjectileLauncher en el jugador ni en sus hijos.",
+                this
+            );
+            return;
         }
+
+        Debug.Log("ProjectileLauncher encontrado. Habilitando arma.");
+
+        launcher.EnableWeapon();
 
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.ShowTooltip(interactionMessage, messageDisplaySeconds);
+            UIManager.Instance.ShowTooltip(
+                interactionMessage,
+                messageDisplaySeconds
+            );
         }
+
+        Debug.Log("Destruyendo objeto: " + gameObject.name);
+
+        Destroy(gameObject);
+        return;
     }
+
+    if (targetRenderer != null)
+    {
+        targetRenderer.material.color = activatedColor;
+    }
+
+    if (UIManager.Instance != null)
+    {
+        UIManager.Instance.ShowTooltip(
+            interactionMessage,
+            messageDisplaySeconds
+        );
+    }
+}
+
 }

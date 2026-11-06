@@ -28,10 +28,12 @@ public class HighJump : MonoBehaviour
         {
             // 1. Buscamos si la plataforma tiene el componente de propiedades
             JumpPadProperties padProps = collider.GetComponent<JumpPadProperties>();
-
+            
             // 2. Si lo tiene, activamos el salto y leemos su fuerza personalizada
             if (padProps != null)
             {
+                AudioSource SoundPad = padProps.audioSourcePad;
+                if (SoundPad != null) {SoundPad.Play(); }
                 isOnMegaPad = true;
                 currentPadForce = padProps.padForce; // ¡Aquí obtenemos el valor único de este objeto!
                 break;

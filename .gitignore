@@ -1,6 +1,6 @@
-# =========================
+# ====================
 # Unity generated files
-# =========================
+# ====================
 
 [Ll]ibrary/
 [Tt]emp/
@@ -8,24 +8,34 @@
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
-[Uu]serSettings/
+[Uu]ser[Ss]ettings/
 [Mm]emoryCaptures/
 [Rr]ecordings/
 
-# =========================
-# Visual Studio / Rider
-# =========================
+# ====================
+# Unity cache / generated data
+# ====================
+
+[Aa]ssets/Plugins/Editor/JetBrains*
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# ====================
+# Visual Studio / Rider / IDE
+# ====================
 
 .vs/
 .idea/
-.gradle/
-ExportedObj/
 .consulo/
+
+.gradle/
+
+ExportedObj/
 
 *.csproj
 *.unityproj
 *.sln
 *.suo
+*.tmp
 *.user
 *.userprefs
 *.pidb
@@ -33,24 +43,43 @@ ExportedObj/
 *.svd
 *.pdb
 *.mdb
+*.opendb
+*.VC.db
 
-# =========================
-# OS generated files
-# =========================
+# ====================
+# Unity generated meta files
+# ====================
 
-.DS_Store
-Thumbs.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
 
-# =========================
+# ====================
 # Crash reports
-# =========================
+# ====================
 
 sysinfo.txt
+crashlytics-build.properties
 
-# =========================
-# Build files
-# =========================
+# ====================
+# Builds
+# ====================
 
 *.apk
 *.aab
 *.unitypackage
+*.app
+
+# ====================
+# OS generated files
+# ====================
+
+.DS_Store
+Thumbs.db
+
+# ====================
+# StreamingAssets Addressables
+# ====================
+
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*

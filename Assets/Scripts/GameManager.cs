@@ -11,8 +11,10 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     private const string FirstLevelSceneName = "Tutorial";
-    private const string SecondLevelSceneName = "Nivel 1";
+    private const string SecondLevelSceneName = "Nivel Final";
     private const string VictorySceneName = "Victory";
+    private Transform activeCheckpoint;
+    private Transform playerTransform;
 
     /// <summary>Orden de niveles del prototipo. Al completar el último se carga la pantalla de victoria.</summary>
     private static readonly string[] LevelOrder = { FirstLevelSceneName, SecondLevelSceneName };
@@ -62,11 +64,13 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
+
         isTransitioningLevel = true;
 
         string currentLevelSceneName = SceneManager.GetActiveScene().name;
+
         LoadSceneWithOptionalUI(
-            uiManager => uiManager.ShowDeathScreen(() => SceneManager.LoadScene(currentLevelSceneName)),
+            uiManager => uiManager.ShowDeathScreen(RespawnPlayer),
             currentLevelSceneName);
     }
 
@@ -99,4 +103,56 @@ public class GameManager : MonoBehaviour
         int currentLevelIndex = Array.IndexOf(LevelOrder, currentLevelSceneName);
         return currentLevelIndex == LevelOrder.Length - 1;
     }
+    public void SetCheckpoint(Transform checkpoint)
+{
+    if (checkpoint == null)
+    {
+        Debug.LogWarning("GameManager: Se intentó guardar un checkpoint nulo.");
+        return;
+    }
+
+    activeCheckpoint = checkpoint;
+    Debug.Log("Checkpoint guardado: " + checkpoint.name);
+}
+
+private void RespawnPlayer()
+{
+    isTransitioningLevel = false;
+
+    GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+    if (playerObject == null)
+    {
+        Debug.LogError("GameManager: No se encontró al jugador.");
+        return;
+    }
+
+    playerTransform = playerObject.transform;
+
+    if (activeCheckpoint == null)
+    {
+        Debug.LogWarning("No hay un checkpoint guardado. Se reiniciará el nivel.");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        return;
+    }
+
+    playerTransform.position = activeCheckpoint.position;
+
+    Rigidbody rb = playerObject.GetComponent<Rigidbody>();
+
+    if (rb != null)
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    FallRespawn fallRespawn = playerObject.GetComponent<FallRespawn>();
+
+    if (fallRespawn != null)
+    {
+        fallRespawn.ResetVoidDeath();
+    }
+
+    Debug.Log("Jugador reaparecido en el checkpoint: " + activeCheckpoint.name);
+}
 }

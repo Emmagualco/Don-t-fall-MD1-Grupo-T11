@@ -36,4 +36,8 @@ public class FallRespawn : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
+    public void ResetVoidDeath()
+{
+    hasTriggeredVoidDeath = false;
+}
 }
